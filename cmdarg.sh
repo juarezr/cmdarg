@@ -95,6 +95,58 @@ function cmdarg
     CMDARG_GETOPTLIST="${CMDARG_GETOPTLIST}$1"
 }
 
+function cmdarg_add
+{
+	# cmdarg_add -s <shortopt> [-l <longopt>] [-t <type>] [-r] [-u <description>] [-d default value] [-v validator function]
+	# cmdarg_add --short <shortopt> [--long <longopt>] [--type <type>] [--required] [--usage <desc>] --default [value] --validator [function]
+	# type : flag text array hash
+	local shortopt=""
+	local longopt=""
+	local argtype="flag"
+	local required="?"
+	local description=""
+	local default=""
+	local validatorfunc=""
+	while [[ "$1" != "" ]]; do
+		case $1 in
+			-s | --short ) shift; shortopt=$1 ;;
+			-l | --long ) shift; longopt=$1 ;;
+			-t | --type ) shift; argtype=$1 ;;
+			-r | --required ) required=":" ;;
+			-u | --usage ) shift; description=$1 ;;
+			-d | --default ) shift; default=$1 ;;
+			-v | --validator ) shift; validatorfunc=$1 ;;
+			*) echo "Unknown argument '${opt}' in cmdarg_add" >&2
+				${CMDARG_ERROR_BEHAVIOR} 1
+				;;
+		esac
+		shift
+	done
+	if [ -z "$shortopt" ] ; then
+		if [ -n "$longopt" ] ; then
+			shortopt="${longopt:0:1}"
+		else
+			echo "Missin option --short in cmdarg_add" >&2
+			${CMDARG_ERROR_BEHAVIOR} 1
+		fi	
+	fi
+	if [ -z "$longopt" ] ; then
+		longopt="$shortopt"
+	fi
+	local flags
+	case "$argtype" in
+		'flag')   flags="$shortopt" ;;
+		'text')   flags="$shortopt$required" ;;
+		'list')  flags="$shortopt$required[]" ;;
+		'hash')  flags="$shortopt$required{}" ;;
+		*) echo "Unknown argument type '${argtype}' for '$shortopt' in cmdarg_add" >&2
+			${CMDARG_ERROR_BEHAVIOR} 1
+			;;
+	esac
+    # cmdarg <option> <key> <description> [default value] [validator function]
+	cmdarg "$flags" "$longopt" "$description" "$default" "$validatorfunc"
+}
+
 function cmdarg_info
 {
     # cmdarg_info <flag> <value>

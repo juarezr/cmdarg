@@ -28,6 +28,7 @@ Usage
 cmdarg is a helper library I wrote for bash scripts because, at current, option parsing in bash (-foo bar, etc) is really hard, lots harder than it should be, given bash's target audience. So here's my solution. There are 4 functions you will care about:
 
     cmdarg
+    cmdarg_add
     cmdarg_info
     cmdarg_parse
     cmdarg_usage
@@ -110,6 +111,24 @@ There is an exception to this form, and that is for hash arguments (e.g. 'x:{}')
     cmdarg_parse -x hashkey=hashvalue
     # ... we will call
     my_validator hashvalue hashkey
+
+cmdarg_add
+===========
+
+This function is used to tell the library what command line arguments you accept. Internally it is a wrapper calling cmdarg. The arguments of this function just are supplied in a user friendly form.
+
+    Usage: cmdarg_add --short <shortopt> [--long <longopt>] [--type <type>] [--required] [--usage <desc>] --default [value] --validator [function]
+
+    Required Arguments:
+        -s,--short <c> : The single letter Name of the argument
+        -l,--long  <name>  : long option name (such as --long-option-name) that can be used to set your argument
+
+    Optional Arguments:
+        -t,--type <type> : type of option: flag text array hash
+        -r,--required : Whether the option is required.
+        -u,--usage <text> : text that describes what this argument is for
+        -d,--default <value> : any default value that you want to be set for this option if the user does not specify one
+        -v,--validator <function> : The name of a bash function which will validate this argument
 
 cmdarg_info
 ===========
